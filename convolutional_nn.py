@@ -19,11 +19,6 @@ import random
 loc = '/Users/Sriram/Desktop/DePaul/Telugu-Char-Recognition/data' # set this to folder with data
 
 charDict = readInData(loc, asUser=False) # 169 chars
-#userDict = readInData(loc, asUser=True) # 143 users
-
-# check to see if all the images are the same dimensions.
-## If not interpolate to the same size
-# iterating through one of the dictionaries for the check
 
 checkifSameShape(charDict)
 
@@ -69,7 +64,8 @@ X_char, y_char = genLabelsData(moreDataCharDict, oneHot=False)
 y_char_1hot = toOneHot(y_char)[0] # we now generate the one_hot vectors for y
 
 
-X_char_train, X_char_test, y_char_train, y_char_test = train_test_split(X_char,y_char_1hot,test_size=0.30, random_state=99,stratify=y_char)
+X_char_train, X_char_test, y_char_train, y_char_test =\
+ train_test_split(X_char,y_char_1hot,test_size=0.30, random_state=99,stratify=y_char)
 
   
 # we shuffle the training indices
@@ -136,6 +132,7 @@ def feed_forward(x, weights, biases, dropout):
     fc1 = tf.reshape(conv2, [-1, weights['d1'].get_shape().as_list()[0]])
     fc1 = tf.add(tf.matmul(fc1, weights['d1']), biases['d1'])
     fc1 = tf.nn.relu(fc1)
+    
     # Apply Dropout
     fc1 = tf.nn.dropout(fc1, dropout)
 
@@ -176,12 +173,6 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 # Initializing the variables
 init = tf.initialize_all_variables()
 
-#X_char_train_tensor = tf.convert_to_tensor(X_char_train)
-#y_char_train_tensor = tf.convert_to_tensor(y_char_train)
-#
-#
-#X_char_test_tensor = tf.convert_to_tensor(X_char_test)
-#y_char_test_tensor = tf.convert_to_tensor(y_char_test)
 with tf.Session() as sess:
     sess.run(init) # initializing all the variables
 
@@ -223,18 +214,11 @@ with tf.Session() as sess:
     
     # Calculate accuracy for the test images 
     print("Testing Accuracy:", \
-       accuracy.eval(feed_dict={x: X_char_test[:20000],
+       accuracy.eval(feed_dict={x: X_char_test[:20000], # we only use the first 20000
                                       y: y_char_test[:20000],
                                       keep_prob: 1.}))
     
     
-resultsDict = {}
-resultsDict['CNNw5x'] = {}
-resultsDict['CNNw5x']['accLst'] = accLst
-resultsDict['CNNw5x']['costLst'] = lossLst
-resultsDict['CNNw1x'] = {}
-resultsDict['CNNw1x']['accLst'] = accLst
-resultsDict['CNNw1x']['costLst'] = lossLst
 
 
 

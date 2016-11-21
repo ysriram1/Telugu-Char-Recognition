@@ -19,36 +19,10 @@ import random
 
 
 loc = '/Users/Sriram/Desktop/DePaul/Telugu-Char-Recognition/data' # set this to folder with data
+# 169 chars, 144 users
 
-charDict = readInData(loc, asUser=False) # 169 chars
-#userDict = readInData(loc, asUser=True) # 143 users
+charDict = readInData(loc, asUser=False, dims = [28, 28])
 
-# check to see if all the images are the same dimensions.
-## If not interpolate to the same size
-# iterating through one of the dictionaries for the check
-
-checkifSameShape(charDict)
-
-# Dimensions dont match for most images.
-
-# the max h and w values
-maxH = 0
-maxW = 0
-Hs = []
-Ws = []
-
-for key in charDict.keys():
-    for img in charDict[key]:
-        h,w = img.shape
-        Hs.append(h); Ws.append(w)
-        if h > maxH: maxH = h
-        if w > maxW: maxW = w
-# maxH = 737 and maxW = 769. Very high. So resizing all imgs to meanH and meanW.
-meanH = int(np.mean(Hs)); meanW = int(np.mean(Ws)) #229, 235
-
-# re-run function with new sizes
-charDict = readInData(loc, asUser=False, dims = [30, 30]) # 169 chars
-#userDict = readInData(loc, asUser=True,  dims = [meanH, meanW]) # 143 users
 
 checkifSameShape(charDict) # True
 
@@ -61,8 +35,6 @@ for key in charDict.keys():
         
 # Add fake images
 moreDataCharDict = generateFakeData(charDict, 1)
-#moreDataUserDict = generateFakeData(userDict)
-
 
 
 # checks
@@ -85,14 +57,12 @@ cv2.imwrite('t7.jpg',tempImg7)
 
 # creating a labels and data matrix from these dictionaries
 
-X_char, y_char = genLabelsData(charDict, oneHot=False)
+X_char, y_char = genLabelsData(moreDataCharDict, oneHot=False)
     
 # split into test and train data
-y_char_1hot = toOneHot(y_char)[0] # we now generate the one_hot vectors for y
-
-
-X_char_train, X_char_test, y_char_train, y_char_test = train_test_split(X_char,y_char_1hot,test_size=0.30, random_state=99,stratify=y_char)
-
+y_char_1hot = toOneHot(y_char)[0] # generate the one_hot vectors for y
+X_char_train, X_char_test, y_char_train, y_char_test = \
+train_test_split(X_char,y_char_1hot,test_size=0.30, random_state=99,stratify=y_char)
   
 # we shuffle the training indices
 indices = list(range(X_char_train.shape[0]))
@@ -109,8 +79,8 @@ y_char_test = y_char_test[indices]
 
 ###############################
 # Now that we have the necessary fake data added, we can proceed with learning
-# First we learn with a simple feed forward neural network
-# with 3 hidden layers []
+# learn with a simple feed forward neural network
+# with 3 hidden layers
 
 ## Start TensorFlow ##
 # initialize the params
@@ -204,54 +174,6 @@ with tf.Session() as sess:
     
 sess.close()
 
-
-####### Reading Dicts
-
-resultsDict['FFw5x'] = {}
-resultsDict['FFw5x']['accLst'] = accLst
-resultsDict['FFw5x']['costLst'] = costLst
-
-
-
-resultsDict['FFw1x'] = {}
-resultsDict['FFw1x']['accLst'] = accLst
-resultsDict['FFw1x']['costLst'] = costLst
-
-import pickle
-resultFile = open('result.pickle','w')
-pickle.dump(resultsDict, resultFile)
-resultFile.close()
-
-
-resultsDict = pickle.load(open('result.pickle','r'))
-
-##### Plotting
-
-import matplotlib.pyplot as plt
-plt.style.use('ggplot')
-
-plt.plot(resultsDict['FFw1x']['accLst'])
-plt.ylabel('accuracy'); plt.xlabel('epochs'); plt.title('Feed Forward Net with 1x Artificial Data')
-plt.plot(resultsDict['FFw1x']['costLst'])
-plt.ylabel('cost'); plt.xlabel('epochs'); plt.title('Feed Forward Net with 1x Artificial Data')
-
-
-plt.plot(resultsDict['FFw5x']['accLst'])
-plt.ylabel('accuracy'); plt.xlabel('epochs'); plt.title('Feed Forward Net with 5x Artificial Data')
-plt.plot(resultsDict['FFw5x']['costLst'])
-plt.ylabel('cost'); plt.xlabel('epochs'); plt.title('Feed Forward Net with 5x Artificial Data')
-
-
-plt.plot(resultsDict['CNNw1x']['accLst'])
-plt.ylabel('accuracy'); plt.xlabel('epochs'); plt.title('CNN with 1x Artificial Data')
-plt.plot(resultsDict['CNNw1x']['costLst'])
-plt.ylabel('cost'); plt.xlabel('epochs'); plt.title('CNN with 1x Artificial Data')
-
-
-plt.plot(resultsDict['CNNw5x']['accLst'])
-plt.ylabel('accuracy'); plt.xlabel('epochs'); plt.title('CNN with 5x Artificial Data')
-plt.plot(resultsDict['CNNw5x']['costLst'])
-plt.ylabel('cost'); plt.xlabel('epochs'); plt.title('CNN with 5x Artificial Data')
 
 
 
