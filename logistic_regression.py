@@ -17,44 +17,11 @@ import random
 
 loc = '/Users/Sriram/Desktop/DePaul/Telugu-Char-Recognition/data' # set this to folder with data
 
-#charDict = readInData(loc, asUser=False) # 169 chars
-#charDict = readInData(loc, asUser=True) # 143 users
-
-# check to see if all the images are the same dimensions.
-## If not interpolate to the same size
-# iterating through one of the dictionaries for the check
-
-#checkifSameShape(charDict)
-
-# Dimensions dont match for most images.
-
-# the max h and w values
-#maxH = 0
-#maxW = 0
-#Hs = []
-#Ws = []
-#
-#for key in charDict.keys():
-#    for img in charDict[key]:
-#        h,w = img.shape
-#        Hs.append(h); Ws.append(w)
-#        if h > maxH: maxH = h
-#        if w > maxW: maxW = w
-## maxH = 737 and maxW = 769. Very high. So resizing all imgs to meanH and meanW.
-#meanH = int(np.mean(Hs)); meanW = int(np.mean(Ws)) #229, 235
-
 # re-run function with new sizes
 charDict = readInData(loc, asUser=True, dims = [28, 28]) # 166 chars
 
 checkifSameShape(charDict) # True
 
-
-## count number of images. We have 45217
-count = 0
-for key in charDict.keys():
-    for img in charDict[key]:
-        count += 1
-        
 # Add fake images
 moreDataCharDict = generateFakeData(charDict,5)
 
@@ -66,9 +33,8 @@ X_char, y_char = genLabelsData(moreDataCharDict, oneHot=False)
 y_char_1hot = toOneHot(y_char)[0] # we now generate the one_hot vectors for y
 
 
-X_char_train, X_char_test, y_char_train, y_char_test = train_test_split(X_char,y_char_1hot,test_size=0.30, random_state=99,stratify=y_char)
-X_char_train, X_char_test, y_char_train, y_char_test = train_test_split(X_char,y_char,test_size=0.30, random_state=99,stratify=y_char)
-
+X_char_train, X_char_test, y_char_train, y_char_test \
+= train_test_split(X_char,y_char_1hot,test_size=0.30, random_state=99,stratify=y_char)
   
 # we shuffle the training indices
 indices = list(range(X_char_train.shape[0]))
@@ -102,17 +68,8 @@ cross_entropy = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(pred, y))
 # change Ws and baises to reduce cross_entropy cost
 optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
 
-
-#sess = tf.InteractiveSession()
-
 init = tf.initialize_all_variables()
 
-#X_char_train_tensor = tf.convert_to_tensor(X_char_train)
-#y_char_train_tensor = tf.convert_to_tensor(y_char_train)
-#
-#
-#X_char_test_tensor = tf.convert_to_tensor(X_char_test)
-#y_char_test_tensor = tf.convert_to_tensor(y_char_test)
 with tf.Session() as sess:
     sess.run(init) # initializing all the variables
 
